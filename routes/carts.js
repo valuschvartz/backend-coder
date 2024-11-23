@@ -1,6 +1,5 @@
 const express = require('express');
 const Cart = require('../models/Cart'); // Modelo del carrito
-const Product = require('../models/Product'); // Modelo de productos
 const Ticket = require('../models/Ticket'); // Modelo de tickets
 const router = express.Router();
 
