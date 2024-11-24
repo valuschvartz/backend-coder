@@ -1,50 +1,32 @@
-// app.js
 const express = require('express');
 const mongoose = require('mongoose');
-const cookieParser = require('cookie-parser');
 const passport = require('passport');
-const userRoutes = require('./routes/users'); // Ruta para usuarios
-const cartRoutes = require('./routes/carts'); // Ruta para carritos
-const ticketRoutes = require('./routes/tickets'); // Ruta para tickets
-const passportConfig = require('./config/passport'); // Configuración de passport
-const exphbs = require('express-handlebars');
+const userRoutes = require('./routes/users');
+const cartRoutes = require('./routes/carts'); // Asegúrate de importar las rutas correctamente
+const productRoutes = require('./routes/products');
 
 const app = express();
 
-// Configurar Handlebars
-app.engine('handlebars', exphbs.engine());
-app.set('view engine', 'handlebars');
+// Configurar middlewares
+app.use(express.json());  // Middleware para procesar cuerpo de las solicitudes en formato JSON
+app.use(passport.initialize());  // Inicializa Passport
+require('./config/passport')(passport);  // Configura Passport
 
-// Middleware
-app.use(express.json());
-app.use(cookieParser());
-app.use(passport.initialize());
-passportConfig(passport);
-
-// Conexión a MongoDB
+// Conectar a MongoDB
 mongoose.connect('mongodb://localhost:27017/ecommerce', {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 })
-.then(() => console.log('MongoDB connected'))
-.catch(err => console.log(err));
+.then(() => console.log('Conexión exitosa a MongoDB'))
+.catch(err => console.error('Error al conectar a MongoDB:', err));
 
-// Usar las rutas
-app.use('/api/users', userRoutes);   // Rutas de usuario
-app.use('/api/carts', cartRoutes);   // Rutas de carrito
-app.use('/api/tickets', ticketRoutes);  // Rutas de tickets
-
-// Rutas para las vistas
-app.get('/register', (req, res) => {
-    res.render('register', { title: 'Register' });
-});
-
-app.get('/login', (req, res) => {
-    res.render('login', { title: 'Login' });
-});
+// Rutas
+app.use('/api/users', userRoutes);
+app.use('/api/carts', cartRoutes);  // Asegúrate de que esta ruta esté registrada
+app.use('/api/products', productRoutes);
 
 // Puerto de escucha
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Servidor corriendo en el puerto ${PORT}`);
 });

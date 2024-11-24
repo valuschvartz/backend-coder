@@ -1,17 +1,8 @@
 const express = require('express');
-const { currentUser, isAdmin, isUser } = require('../authMiddleware');
-const { createTicket } = require('../controllers/ticketController');
-const { 
-    registerUser, 
-    loginUser, 
-    currentUser: getCurrentUser, 
-    getAllUsers, 
-    updateUser, 
-    deleteUser 
-} = require('../controllers/userController');
-const passport = require('passport');
+const { registerUser, loginUser, currentUser } = require('../controllers/userController');
+const { isAdmin } = require('../authMiddleware');  // Middleware para verificar si es admin
 
-const router = express.Router();
+const router = express.Router();  // Crear una instancia de Router
 
 // Ruta para registrar un nuevo usuario
 router.post('/register', registerUser);
@@ -19,22 +10,7 @@ router.post('/register', registerUser);
 // Ruta para iniciar sesión
 router.post('/login', loginUser);
 
-// Aplicar la estrategia "current" (autenticación y carga de usuario) para las rutas protegidas
-router.use(passport.authenticate('jwt', { session: false }), currentUser);
+// Ruta para obtener los datos del usuario actual
+router.get('/current', currentUser);
 
-// Ruta para que un usuario cree un ticket de compra (solo para usuarios)
-router.post('/ticket', isUser, createTicket);
-
-// Ruta para obtener el usuario actual
-router.get('/current', getCurrentUser);
-
-// Ruta para obtener todos los usuarios (solo para administradores)
-router.get('/', isAdmin, getAllUsers);
-
-// Ruta para actualizar un usuario (solo para administradores)
-router.put('/:id', isAdmin, updateUser);
-
-// Ruta para eliminar un usuario (solo para administradores)
-router.delete('/:id', isAdmin, deleteUser);
-
-module.exports = router;
+module.exports = router;  // Asegúrate de exportar correctamente el router

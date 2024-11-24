@@ -1,104 +1,127 @@
-const User = require('../models/User');
-const Cart = require('../models/Cart'); // Importar el modelo de carrito
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-// Registro de Usuario
-const registerUser = async (req, res) => {
-    const { first_name, last_name, email, age, password } = req.body;
+const JWT_SECRET = process.env.JWT_SECRET || 'coder123';  // Usar una variable de entorno en producción
 
+// Registro de un nuevo usuario
+exports.registerUser = async (req, res) => {
     try {
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return res.status(400).json({ message: 'User already exists' });
+        const { first_name, last_name, email, age, password } = req.body;
+
+        // Agregar un console.log para ver qué está llegando en la solicitud
+        console.log('Datos recibidos:', req.body);
+        console.log('Contraseña recibida:', password);  // Verificar la contraseña
+
+        // Verificar que la contraseña no esté vacía
+        if (!password) {
+            return res.status(400).json({ message: 'La contraseña es requerida.' });
         }
 
-        const hashedPassword = bcrypt.hashSync(password, 10);
-        const newCart = new Cart();
-        await newCart.save();
+        // Verificar si el usuario ya existe
+        const existingUser = await User.findOne({ email });
+        if (existingUser) {
+            return res.status(400).json({ message: 'El email ya está registrado.' });
+        }
 
-        const newUser = new User({
+        // Encriptar la contraseña
+        const saltRounds = 10;
+        const hashedPassword = bcrypt.hashSync(password, saltRounds);
+
+        // Crear el nuevo usuario
+        const newUser = await User.create({
             first_name,
             last_name,
             email,
             age,
             password: hashedPassword,
-            cart: newCart._id
+            role: 'user', // Por defecto, todos son usuarios
         });
 
-        await newUser.save();
-        return res.status(201).json({ message: 'User registered successfully', user: newUser });
+        res.status(201).json({
+            message: 'Usuario registrado con éxito.',
+            user: {
+                id: newUser._id,
+                first_name: newUser.first_name,
+                last_name: newUser.last_name,
+                email: newUser.email,
+                age: newUser.age,
+            },
+        });
     } catch (error) {
-        return res.status(500).json({ message: 'Server error', error });
+        console.error('Error al registrar el usuario:', error);  // Log para más detalles
+        res.status(500).json({
+            message: 'Error al registrar el usuario.',
+            error: error.message || 'Error desconocido',  // Proporcionamos más detalles del error
+        });
     }
 };
 
-// Login de Usuario
-const loginUser = async (req, res) => {
-    const { email, password } = req.body;
-
+// Inicio de sesión
+exports.loginUser = async (req, res) => {
     try {
+        const { email, password } = req.body;
+
+        console.log('Datos de inicio de sesión:', req.body);  // Log de los datos de login
+        console.log('Contraseña de inicio de sesión:', password);  // Verificar la contraseña en login
+
         const user = await User.findOne({ email });
-        if (!user || !bcrypt.compareSync(password, user.password)) {
-            return res.status(401).json({ message: 'Invalid credentials' });
-        }
-
-        const token = jwt.sign({ id: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-        res.cookie('jwt', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
-        return res.status(200).json({ message: 'Login successful', user });
-    } catch (error) {
-        return res.status(500).json({ message: 'Server error', error });
-    }
-};
-
-// Obtener Usuario Actual
-const currentUser = (req, res) => {
-    if (!req.user) {
-        return res.status(401).json({ message: 'Unauthorized' });
-    }
-    return res.status(200).json(req.user);
-};
-
-// Obtener Todos los Usuarios
-const getAllUsers = async (req, res) => {
-    try {
-        const users = await User.find();
-        return res.status(200).json(users);
-    } catch (error) {
-        return res.status(500).json({ message: 'Server error', error });
-    }
-};
-
-// Actualizar Usuario
-const updateUser = async (req, res) => {
-    const { id } = req.params;
-    const updates = req.body;
-
-    try {
-        const user = await User.findByIdAndUpdate(id, updates, { new: true });
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            return res.status(400).json({ message: 'Usuario no encontrado.' });
         }
-        return res.status(200).json(user);
+
+        const isMatch = bcrypt.compareSync(password, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Contraseña incorrecta.' });
+        }
+
+        // Generar token JWT
+        const token = jwt.sign(
+            { id: user._id, role: user.role },
+            JWT_SECRET,
+            { expiresIn: '1h' }
+        );
+
+        res.status(200).json({
+            message: 'Inicio de sesión exitoso.',
+            token,
+            user: {
+                id: user._id,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                email: user.email,
+                role: user.role,
+            },
+        });
     } catch (error) {
-        return res.status(500).json({ message: 'Server error', error });
+        console.error('Error al iniciar sesión:', error);
+        res.status(500).json({ message: 'Error al iniciar sesión.', error: error.message });
     }
 };
 
-// Eliminar Usuario
-const deleteUser = async (req, res) => {
-    const { id } = req.params;
-
+// Obtener el usuario actual
+exports.currentUser = async (req, res) => {
     try {
-        const user = await User.findByIdAndDelete(id);
-        if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+        const token = req.headers.authorization?.split(' ')[1];
+        if (!token) {
+            return res.status(401).json({ message: 'Token no proporcionado.' });
         }
-        return res.status(200).json({ message: 'User deleted successfully' });
+
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const user = await User.findById(decoded.id);
+        if (!user) {
+            return res.status(404).json({ message: 'Usuario no encontrado.' });
+        }
+
+        res.status(200).json({
+            id: user._id,
+            first_name: user.first_name,
+            last_name: user.last_name,
+            email: user.email,
+            role: user.role,
+        });
     } catch (error) {
-        return res.status(500).json({ message: 'Server error', error });
+        console.error('Error al obtener el usuario actual:', error);
+        res.status(401).json({ message: 'Token inválido.', error: error.message });
     }
 };
-
-module.exports = { registerUser, loginUser, currentUser, getAllUsers, updateUser, deleteUser };

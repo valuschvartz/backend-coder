@@ -1,10 +1,10 @@
-// routes/ticketRouter.js
 const express = require('express');
-const ticketController = require('../controllers/ticketController');
+const { createTicket } = require('../controllers/ticketController');
 const { isUser } = require('../authMiddleware');
 
 const router = express.Router();
 
-router.post('/create', isUser, ticketController.createTicket);
+// Crear un ticket basado en el carrito (solo usuarios)
+router.post('/:cartId', isUser, createTicket);
 
 module.exports = router;
