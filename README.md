@@ -25,7 +25,7 @@ Este es un proyecto de ecommerce diseñado para manejar el registro de usuarios,
 
 ## Estructura del Proyecto
 
-## Estructura del Proyecto
+
 
 ```plaintext
 📁 ecommerce-project/
