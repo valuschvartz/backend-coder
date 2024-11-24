@@ -1,19 +1,19 @@
 {
 	"info": {
-		"_postman_id": "072ab421-bd60-44df-812a-d68479bb27a9",
-		"name": "arq-backend",
+		"_postman_id": "3f364306-a363-4dc3-8b27-c78b658d17bb",
+		"name": "Arq-backend",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "30624493"
+		"_exporter_id": "39959105"
 	},
 	"item": [
 		{
-			"name": "crear user",
+			"name": "Registrar Usuario",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"first_name\": \"Martin\",\n    \"last_name\": \"Doe\",\n    \"email\": \"marto.doe@example.com\",\n    \"age\": 30,\n    \"password\": \"password\"\n}",
+					"raw": "{\r\n  \"first_name\": \"Mauro\",\r\n  \"last_name\": \"Gomez\",\r\n  \"email\": \"mauro.gomez@example.com\",\r\n  \"age\": 25,\r\n  \"password\": \"123456\"\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -37,13 +37,13 @@
 			"response": []
 		},
 		{
-			"name": "obtener user",
+			"name": "Login Usuario",
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n  \"email\": \"marto.doe@example.com\",\n  \"password\": \"password\"\n}",
+					"raw": "{\r\n  \"email\": \"juan.perez@example.com\",\r\n  \"password\": \"123456\"\r\n}\r\n",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -67,22 +67,20 @@
 			"response": []
 		},
 		{
-			"name": "usuario actual",
-			"protocolProfileBehavior": {
-				"disableBodyPruning": true
-			},
+			"name": "Obtener Usuario Actual",
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NDI2ZmY1Y2IzZDUzNjIxNGU4MGJmNCIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzMyNDA3NjQ4LCJleHAiOjE3MzI0MTEyNDh9.3b_o-oTYZIcEsVSFdpV2Zurc0tAgR-TzlHOgseCSnno",
+							"type": "string"
+						}
+					]
+				},
 				"method": "GET",
 				"header": [],
-				"body": {
-					"mode": "raw",
-					"raw": "",
-					"options": {
-						"raw": {
-							"language": "json"
-						}
-					}
-				},
 				"url": {
 					"raw": "http://localhost:3000/api/users/current",
 					"protocol": "http",
@@ -100,34 +98,31 @@
 			"response": []
 		},
 		{
-			"name": "Borrar usuario",
+			"name": "Crear Producto (Solo Admin)",
 			"request": {
-				"method": "DELETE",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:3000/api/users/67214d4a1571fbbb1c8b25bd",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "3000",
-					"path": [
-						"api",
-						"users",
-						"67214d4a1571fbbb1c8b25bd"
-					]
-				}
+				"method": "GET",
+				"header": []
 			},
 			"response": []
 		},
 		{
-			"name": "actualizar user",
+			"name": "Crear Carrito",
 			"request": {
-				"method": "PUT",
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NDI3MTM1Y2IzZDUzNjIxNGU4MGJmYyIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzMyNDA4NjUxLCJleHAiOjE3MzI0MTIyNTF9.mCc8JgIgKbqn3mKYcVBrKZphLjm3Fme9lQLZcvxuM5I",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"first_name\": \"Jane\",\n    \"last_name\": \"Doe\",\n    \"age\": 31\n}",
+					"raw": "{\r\n    \"userId\": \"67427135cb3d536214e80bfc\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -135,7 +130,7 @@
 					}
 				},
 				"url": {
-					"raw": "http://localhost:3000/api/users/67214a68dd8dccc465b3c62b",
+					"raw": "http://localhost:3000/api/carts",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -143,20 +138,19 @@
 					"port": "3000",
 					"path": [
 						"api",
-						"users",
-						"67214a68dd8dccc465b3c62b"
+						"carts"
 					]
 				}
 			},
 			"response": []
 		},
 		{
-			"name": "todos los users",
+			"name": "Obtener Producto",
 			"request": {
 				"method": "GET",
 				"header": [],
 				"url": {
-					"raw": "http://localhost:3000/api/users",
+					"raw": "http://localhost:3000/api/products",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -164,7 +158,212 @@
 					"port": "3000",
 					"path": [
 						"api",
-						"users"
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Actualizar Producto (Solo Admin)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NDI3MjcyMDc0ODY5NTNhNWJmNWYwZiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTczMjQxMDgxNCwiZXhwIjoxNzMyNDE0NDE0fQ.RhqkbtVzdhSOfR8KhGHjl5EQVrhMUMHniN9rCu8z2lQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"price\": 150,\r\n  \"stock\": 20\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/products/67427ea7aabc45695bbc1f00",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"products",
+						"67427ea7aabc45695bbc1f00"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Eliminar Producto (Solo Admin)",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NDI3MjcyMDc0ODY5NTNhNWJmNWYwZiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTczMjQxMDgxNCwiZXhwIjoxNzMyNDE0NDE0fQ.RhqkbtVzdhSOfR8KhGHjl5EQVrhMUMHniN9rCu8z2lQ",
+							"type": "string"
+						}
+					]
+				},
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/products/67427f22aabc45695bbc1f06",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"products",
+						"67427f22aabc45695bbc1f06"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Agregar Producto",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NDI2ZmY1Y2IzZDUzNjIxNGU4MGJmNCIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzMyNDExNTUwLCJleHAiOjE3MzI0MTUxNTB9.L_IT-U14UM47-UCObC_BSD60XpUbsbYRkRTlkGG4dsU",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"productId\": \"67427ea7aabc45695bbc1f00\",\r\n  \"quantity\": 2\r\n}\r\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/carts/674275ccae9dc6166dc1e8bd/products",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"carts",
+						"674275ccae9dc6166dc1e8bd",
+						"products"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Finalizar Compra del Carrito",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NDI2ZmY1Y2IzZDUzNjIxNGU4MGJmNCIsInJvbGUiOiJ1c2VyIiwiaWF0IjoxNzMyNDEyNDkwLCJleHAiOjE3MzI0MTYwOTB9.Y_4O8abRWIaWS-juAANFF00cKJ3tXkGFkvzcKxU9j8U",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/carts/6742848a7ae613191081e385/purchase",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"carts",
+						"6742848a7ae613191081e385",
+						"purchase"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Obtener Todos los Tickets",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NDI3MjcyMDc0ODY5NTNhNWJmNWYwZiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTczMjQxMzI4OSwiZXhwIjoxNzMyNDE2ODg5fQ.thHTRta_JSEBe-ZuZxMpxIvEP8rX0NoHabX2V-v9rIA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/tickets",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"tickets"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Buscar un Ticket por Código",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY3NDI3MjcyMDc0ODY5NTNhNWJmNWYwZiIsInJvbGUiOiJhZG1pbiIsImlhdCI6MTczMjQxMzI4OSwiZXhwIjoxNzMyNDE2ODg5fQ.thHTRta_JSEBe-ZuZxMpxIvEP8rX0NoHabX2V-v9rIA",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:3000/api/tickets/TICKET-SSSRWHC92",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"tickets",
+						"TICKET-SSSRWHC92"
 					]
 				}
 			},

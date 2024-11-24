@@ -1,6 +1,11 @@
 const express = require('express');
-const { currentUser } = require('../authMiddleware'); // Asegúrate de que esta función esté configurada
+const { currentUser, isUser } = require('../authMiddleware'); // Asegúrate de que isUser esté definido
 const Cart = require('../models/Cart');
+const { purchaseCart } = require('../controllers/cartController');  // Controlador para finalizar la compra
+const Product = require('../models/Product');  // Asegúrate de que el modelo del producto esté importado
+const { addProductToCart } = require('../controllers/cartController'); 
+
+
 const router = express.Router();
 
 // Crear un carrito para un usuario
@@ -31,5 +36,11 @@ router.post('/', currentUser, async (req, res) => {
         res.status(500).json({ message: 'Error al crear el carrito', error: error.message });
     }
 });
+
+// Ruta para agregar un producto al carrito
+router.post('/:cartId/products', isUser, addProductToCart);
+
+// Ruta para finalizar la compra
+router.post('/:cid/purchase', isUser, purchaseCart);
 
 module.exports = router;

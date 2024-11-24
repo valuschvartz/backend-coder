@@ -44,16 +44,33 @@ exports.authorizeRole = (role) => {
 };
 
 // Alias para roles específicos
-exports.isUser = (req, res, next) => {
-    if (req.user && req.user.role === 'user') {
-        return next();
+exports.isUser = async (req, res, next) => {
+    const token = req.headers.authorization?.split(" ")[1]; // Extrae el token del header
+
+    if (!token) {
+        return res.status(401).json({ message: 'No se proporcionó un token' });
     }
-    res.status(403).json({ message: 'Acceso denegado: solo usuarios pueden realizar esta acción.' });
+
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const user = await User.findById(decoded.id);
+
+        if (!user) {
+            return res.status(401).json({ message: 'Usuario no encontrado' });
+        }
+
+        req.user = user; // Adjunta el usuario a la solicitud
+        next(); // Permite que la solicitud pase al siguiente middleware o controlador
+    } catch (error) {
+        return res.status(401).json({ message: 'Token inválido', error: error.message });
+    }
+};
+exports.isAdmin = (req, res, next) => {
+    console.log('Usuario en el middleware de autorización:', req.user);  // Verifica que el usuario esté correctamente adjuntado a la solicitud
+    if (req.user && req.user.role === 'admin') {
+        return next();  // Si el rol es 'admin', permite la acción
+    }
+    console.log('Acceso denegado: el usuario no es un administrador');
+    return res.status(403).json({ message: 'Acceso denegado: solo administradores pueden realizar esta acción.' });
 };
 
-exports.isAdmin = (req, res, next) => {
-    if (req.user && req.user.role === 'admin') {
-        return next();
-    }
-    res.status(403).json({ message: 'Acceso denegado: solo administradores pueden realizar esta acción.' });
-};

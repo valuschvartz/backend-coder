@@ -20,7 +20,7 @@ const ticketSchema = new mongoose.Schema({
     amount: {
         type: Number,
         required: true,
-        min: 0, // Asegurarse de que el monto no sea negativo
+        min: 0, // Asegúrate de que el monto no sea negativo
     },
     purchaser: {
         type: String,
