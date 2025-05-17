@@ -1,41 +1,33 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const CustomError = require('../routes/CustomError');
 
-const JWT_SECRET = process.env.JWT_SECRET || 'coder123';  // Usar una variable de entorno en producción
+const JWT_SECRET = process.env.JWT_SECRET || 'coder123';
 
 // Registro de un nuevo usuario
-exports.registerUser = async (req, res) => {
+exports.registerUser = async (req, res, next) => {
     try {
         const { first_name, last_name, email, age, password } = req.body;
 
-        // Agregar un console.log para ver qué está llegando en la solicitud
-        console.log('Datos recibidos:', req.body);
-        console.log('Contraseña recibida:', password);  // Verificar la contraseña
-
-        // Verificar que la contraseña no esté vacía
         if (!password) {
-            return res.status(400).json({ message: 'La contraseña es requerida.' });
+            throw new CustomError('PASSWORD_REQUIRED');
         }
 
-        // Verificar si el usuario ya existe
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: 'El email ya está registrado.' });
+            throw new CustomError('EMAIL_ALREADY_EXISTS');
         }
 
-        // Encriptar la contraseña
-        const saltRounds = 10;
-        const hashedPassword = bcrypt.hashSync(password, saltRounds);
+        const hashedPassword = bcrypt.hashSync(password, 10);
 
-        // Crear el nuevo usuario
         const newUser = await User.create({
             first_name,
             last_name,
             email,
             age,
             password: hashedPassword,
-            role: 'user', // Por defecto, todos son usuarios
+            role: 'user',
         });
 
         res.status(201).json({
@@ -49,33 +41,25 @@ exports.registerUser = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error('Error al registrar el usuario:', error);  // Log para más detalles
-        res.status(500).json({
-            message: 'Error al registrar el usuario.',
-            error: error.message || 'Error desconocido',  // Proporcionamos más detalles del error
-        });
+        next(error);
     }
 };
 
 // Inicio de sesión
-exports.loginUser = async (req, res) => {
+exports.loginUser = async (req, res, next) => {
     try {
         const { email, password } = req.body;
 
-        console.log('Datos de inicio de sesión:', req.body);  // Log de los datos de login
-        console.log('Contraseña de inicio de sesión:', password);  // Verificar la contraseña en login
-
         const user = await User.findOne({ email });
         if (!user) {
-            return res.status(400).json({ message: 'Usuario no encontrado.' });
+            throw new CustomError('USER_NOT_FOUND');
         }
 
         const isMatch = bcrypt.compareSync(password, user.password);
         if (!isMatch) {
-            return res.status(400).json({ message: 'Contraseña incorrecta.' });
+            throw new CustomError('INVALID_PASSWORD');
         }
 
-        // Generar token JWT
         const token = jwt.sign(
             { id: user._id, role: user.role },
             JWT_SECRET,
@@ -94,23 +78,22 @@ exports.loginUser = async (req, res) => {
             },
         });
     } catch (error) {
-        console.error('Error al iniciar sesión:', error);
-        res.status(500).json({ message: 'Error al iniciar sesión.', error: error.message });
+        next(error);
     }
 };
 
 // Obtener el usuario actual
-exports.currentUser = async (req, res) => {
+exports.currentUser = async (req, res, next) => {
     try {
         const token = req.headers.authorization?.split(' ')[1];
         if (!token) {
-            return res.status(401).json({ message: 'Token no proporcionado.' });
+            throw new CustomError('TOKEN_NOT_PROVIDED');
         }
 
         const decoded = jwt.verify(token, JWT_SECRET);
         const user = await User.findById(decoded.id);
         if (!user) {
-            return res.status(404).json({ message: 'Usuario no encontrado.' });
+            throw new CustomError('USER_NOT_FOUND');
         }
 
         res.status(200).json({
@@ -121,7 +104,6 @@ exports.currentUser = async (req, res) => {
             role: user.role,
         });
     } catch (error) {
-        console.error('Error al obtener el usuario actual:', error);
-        res.status(401).json({ message: 'Token inválido.', error: error.message });
+        next(error);
     }
 };

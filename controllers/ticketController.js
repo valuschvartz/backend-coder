@@ -1,7 +1,8 @@
 const Ticket = require('../models/Ticket');
+const CustomError = require('../routes/CustomError');
 
 // Obtener todos los tickets
-exports.getAllTickets = async (req, res) => {
+exports.getAllTickets = async (req, res, next) => {
     try {
         const tickets = await Ticket.find();
         res.status(200).json({
@@ -9,18 +10,18 @@ exports.getAllTickets = async (req, res) => {
             tickets
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error al obtener los tickets', error: error.message });
+        next(new CustomError('TICKETS_FETCH_FAILED'));
     }
 };
 
 // Obtener un ticket por código
-exports.getTicketByCode = async (req, res) => {
+exports.getTicketByCode = async (req, res, next) => {
     try {
         const { code } = req.params;
         const ticket = await Ticket.findOne({ code });
 
         if (!ticket) {
-            return res.status(404).json({ message: 'Ticket no encontrado' });
+            throw new CustomError('TICKET_NOT_FOUND');
         }
 
         res.status(200).json({
@@ -28,6 +29,6 @@ exports.getTicketByCode = async (req, res) => {
             ticket
         });
     } catch (error) {
-        res.status(500).json({ message: 'Error al obtener el ticket', error: error.message });
+        next(error);
     }
 };

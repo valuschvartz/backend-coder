@@ -1,54 +1,53 @@
 const ProductService = require('../services/productService');
+const CustomError = require('../routes/CustomError');
 
-exports.createProduct = async (req, res) => {
+exports.createProduct = async (req, res, next) => {
     try {
         const product = await ProductService.createProduct(req.body);
         res.status(201).json({ message: 'Producto creado con éxito', product });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        next(new CustomError('PRODUCT_CREATION_FAILED'));
     }
 };
 
-exports.updateProduct = async (req, res) => {
+exports.updateProduct = async (req, res, next) => {
     try {
         const { id } = req.params;
         const updatedProduct = await ProductService.updateProduct(id, req.body);
         res.status(200).json({ message: 'Producto actualizado con éxito', product: updatedProduct });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        next(new CustomError('PRODUCT_UPDATE_FAILED'));
     }
 };
 
-exports.deleteProduct = async (req, res) => {
+exports.deleteProduct = async (req, res, next) => {
     try {
         const { id } = req.params;
         await ProductService.deleteProduct(id);
         res.status(200).json({ message: 'Producto eliminado con éxito' });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        next(new CustomError('PRODUCT_DELETE_FAILED'));
     }
 };
 
-// Obtener todos los productos
-exports.getAllProducts = async (req, res) => {
+exports.getAllProducts = async (req, res, next) => {
     try {
         const products = await ProductService.getAllProducts();
         res.status(200).json(products);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        next(new CustomError('PRODUCTS_FETCH_FAILED'));
     }
 };
 
-// Obtener un producto por ID
-exports.getProductById = async (req, res) => {
+exports.getProductById = async (req, res, next) => {
     try {
         const { id } = req.params;
         const product = await ProductService.getProductById(id);
         if (!product) {
-            return res.status(404).json({ message: 'Producto no encontrado' });
+            throw new CustomError('PRODUCT_NOT_FOUND');
         }
         res.status(200).json(product);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        next(error);
     }
 };

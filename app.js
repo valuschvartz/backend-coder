@@ -1,37 +1,46 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const passport = require('passport');  // Asegúrate de que Passport esté importado
-const userRoutes = require('./routes/users');
-const cartRoutes = require('./routes/carts');
-const productRoutes = require('./routes/products');
-const ticketRoutes = require('./routes/tickets');
+const dotenv = require('dotenv');
+const path = require('path');
+const logger = require('./config/logger');
+const errorHandler = require('./middlewares/errorHandler');
+const loggerTestRouter = require('./routes/loggerTest');
+const swaggerUi = require('swagger-ui-express');
+const swaggerSpec = require('./config/swagger');
+
+dotenv.config();
 
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Inicializar Passport
-require('./config/passport')(passport);  // Aquí inicializamos la estrategia de Passport
+logger.info(`🌱 Entorno: ${process.env.NODE_ENV || 'development'}`);
 
-// Usar los middlewares
+// Middlewares
 app.use(express.json());
-app.use(passport.initialize());  // Inicializa Passport para todas las rutas
-
-// Conectar a MongoDB
-mongoose.connect('mongodb://localhost:27017/ecommerce', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-})
-.then(() => console.log('Conexión exitosa a MongoDB'))
-.catch(err => console.error('Error al conectar a MongoDB:', err));
+app.use(express.urlencoded({ extended: true }));
 
 // Rutas
-app.use('/api/users', userRoutes);
-app.use('/api/carts', cartRoutes);
-app.use('/api/products', productRoutes);
-app.use('/api/tickets', ticketRoutes);
+app.use('/', loggerTestRouter);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 
-// Puerto de escucha
-const PORT = process.env.PORT || 3000;
+app.get('/errorTest', (req, res, next) => {
+    const error = new Error('Error de prueba');
+    error.code = 'USER_NOT_FOUND';  // Por ejemplo, un código definido en errorDictionary
+    next(error);
+  });
+
+
+
+// MongoDB
+mongoose.connect('mongodb://localhost:27017/ecommerce')
+  .then(() => logger.info('✅ Conexión exitosa a MongoDB'))
+  .catch((err) => logger.error('❌ Error al conectar a MongoDB:', err));
+
+// Middleware de errores
+app.use(errorHandler);
+
+// Servidor
 app.listen(PORT, () => {
-    console.log(`Servidor corriendo en el puerto ${PORT}`);
+  logger.info(`🚀 Servidor corriendo en el puerto ${PORT}`);
 });

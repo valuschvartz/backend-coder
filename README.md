@@ -1,6 +1,9 @@
-Aquí tienes el **README.md** adaptado para tu proyecto de ecommerce con la estructura y detalles que me proporcionaste:
+Perfecto. Acá tenés el README.md completo y actualizado, incluyendo la nueva sección de Mocking y Manejo de Errores:
 
-```markdown
+⸻
+
+
+
 # Ecommerce Project
 
 Este es un proyecto de ecommerce diseñado para manejar el registro de usuarios, autenticación mediante JWT, gestión de sesiones, y CRUD completo de usuarios. El proyecto está construido con **Node.js**, **Express**, **MongoDB**, **Passport** para autenticación y **Handlebars** para renderizado de vistas.
@@ -19,181 +22,164 @@ Este es un proyecto de ecommerce diseñado para manejar el registro de usuarios,
 - [Configuración](#configuración)
 - [Rutas de la API](#rutas-de-la-api)
 - [Pruebas en Postman](#pruebas-en-postman)
+- [Mocking y Manejo de Errores](#mocking-y-manejo-de-errores)
 - [Notas Adicionales](#notas-adicionales)
 - [Contribuciones](#contribuciones)
 - [Licencia](#licencia)
 
 ## Estructura del Proyecto
 
-
-
 ```plaintext
 📁 ecommerce-project/
 │
-├── 📄 app.js                        # Configuración principal del servidor
-├── 📄 .env                          # Variables de entorno
-├── 📄 .gitignore                    # Archivos y carpetas a ignorar en Git
-├── 📄 package.json                  # Dependencias y scripts
-├── 📄 package-lock.json             # Lock de dependencias
+├── 📄 app.js
+├── 📄 .env
+├── 📄 .gitignore
+├── 📄 package.json
 ├── 📁 config/
-│   └── 📄 passport.js               # Configuración de Passport para JWT
+│   └── 📄 passport.js
 ├── 📁 controllers/
-│   └── 📄 cartController.js         # Controladores de carrito
-│   └── 📄 productController.js      # Controladores de producto
-│   └── 📄 userController.js         # Controladores de usuario
 ├── 📁 daos/
-│   └── 📄 CartDAO.js                # DAO de carrito
-│   └── 📄 ProductDAO.js             # DAO de producto
-│   └── 📄 TicketDAO.js              # DAO de ticket
-│   └── 📄 UserDAO.js                # DAO de usuario
 ├── 📁 dtos/
-│   └── 📄 CartDTO.js                # DTO de carrito
-│   └── 📄 ProductDTO.js             # DTO de producto
-│   └── 📄 TicketDTO.js              # DTO de ticket
-│   └── 📄 UserDTO.js                # DTO de usuario
 ├── 📁 models/
-│   ├── 📄 User.js                   # Modelo de usuario
-│   ├── 📄 Product.js                # Modelo de producto
-│   └── 📄 Cart.js                   # Modelo de carrito
 ├── 📁 repositories/
-│   └── 📄 BaseRepository.js         # Base de repositorio
-│   └── 📄 CartRepository.js         # Repositorio de carrito
-│   └── 📄 ProductRepository.js      # Repositorio de producto
-│   └── 📄 TicketRepository.js       # Repositorio de ticket
-│   └── 📄 UserRepository.js         # Repositorio de usuario
 ├── 📁 routes/
-│   └── 📄 users.js                  # Rutas de usuario
-│   └── 📄 carts.js                  # Rutas de carrito
-│   └── 📄 products.js               # Rutas de productos
-│   └── 📄 sessions.js               # Rutas de sesiones
 ├── 📁 services/
-│   └── 📄 cartService.js            # Lógica de negocio para carritos
-│   └── 📄 productService.js         # Lógica de negocio para productos
-│   └── 📄 userService.js            # Lógica de negocio para usuarios
 ├── 📁 views/
-│   ├── 📄 register.handlebars       # Vista de registro
-│   ├── 📄 login.handlebars          # Vista de login
-│   └── 📄 layouts/
-│       └── 📄 main.handlebars       # Layout de Handlebars
-├── 📁 node_modules/                 # Dependencias de Node.js
-└── 📄 README.md                     # Documentación del proyecto
 
+Configuración
 
-## Configuración
+Passport y JWT
 
-### Passport y JWT
+El archivo passport.js configura Passport para usar una estrategia de autenticación JWT. Extrae el token JWT de las cookies y verifica la autenticidad del usuario.
 
-El archivo **`passport.js`** configura Passport para usar una estrategia de autenticación JWT. Extrae el token JWT de las cookies y verifica la autenticidad del usuario.
+MongoDB
 
-### MongoDB
+El proyecto se conecta a una base de datos MongoDB definida en el archivo .env mediante la variable MONGODB_URI.
 
-El proyecto se conecta a una base de datos MongoDB definida en el archivo **`.env`** mediante la variable **`MONGODB_URI`**.
+Rutas de la API
 
-### Rutas de la API
+Método	Ruta	Descripción	Protección
+POST	/api/users/register	Registro de un nuevo usuario	No
+POST	/api/users/login	Inicia sesión y devuelve un token	No
+GET	/api/users/current	Obtiene el usuario actual autenticado	JWT
+GET	/api/users	Obtiene todos los usuarios	JWT
+PUT	/api/users/:id	Actualiza información del usuario por ID	JWT
+DELETE	/api/users/:id	Elimina un usuario por ID	JWT
+POST	/api/carts	Crea un nuevo carrito	JWT
+POST	/api/carts/:cartId/products	Agrega un producto al carrito	JWT
+POST	/api/carts/:cid/purchase	Finaliza la compra del carrito	JWT
 
-| **Método** | **Ruta**                      | **Descripción**                                      | **Protección**         |
-|------------|--------------------------------|------------------------------------------------------|------------------------|
-| POST       | `/api/users/register`          | Registro de un nuevo usuario                         | No                     |
-| POST       | `/api/users/login`             | Inicia sesión y devuelve un token                    | No                     |
-| GET        | `/api/users/current`           | Obtiene el usuario actual autenticado                | JWT                    |
-| GET        | `/api/users`                   | Obtiene todos los usuarios                           | JWT                    |
-| PUT        | `/api/users/:id`               | Actualiza información del usuario por ID             | JWT                    |
-| DELETE     | `/api/users/:id`               | Elimina un usuario por ID                            | JWT                    |
-| POST       | `/api/carts`                   | Crea un nuevo carrito                                | JWT                    |
-| POST       | `/api/carts/:cartId/products`  | Agrega un producto al carrito                        | JWT                    |
-| POST       | `/api/carts/:cid/purchase`     | Finaliza la compra del carrito                       | JWT                    |
+Pruebas en Postman
 
-## Pruebas en Postman
+Registro de Usuario
 
-### **1. Registro de Usuario**
-- **Método**: `POST`
-- **URL**: `http://localhost:3000/api/users/register`
-- **Body (JSON)**:
-  ```json
-  {
-    "first_name": "John",
-    "last_name": "Doe",
-    "email": "johndoe@example.com",
-    "age": 25,
-    "password": "securePassword123"
-  }
-  ```
+POST /api/users/register
 
-### **2. Login de Usuario**
-- **Método**: `POST`
-- **URL**: `http://localhost:3000/api/users/login`
-- **Body (JSON)**:
-  ```json
-  {
-    "email": "johndoe@example.com",
-    "password": "securePassword123"
-  }
-  ```
+{
+  "first_name": "John",
+  "last_name": "Doe",
+  "email": "johndoe@example.com",
+  "age": 25,
+  "password": "securePassword123"
+}
 
-### **3. Obtener Usuario Actual**
-- **Método**: `GET`
-- **URL**: `http://localhost:3000/api/users/current`
-- **Headers**:
-  - **Authorization**: `Bearer <USER_JWT_TOKEN>`
-- **Descripción**: Obtiene los detalles del usuario autenticado.
+Login de Usuario
 
-### **4. Crear Carrito**
-- **Método**: `POST`
-- **URL**: `http://localhost:3000/api/carts`
-- **Headers**:
-  - **Authorization**: `Bearer <USER_JWT_TOKEN>`
-- **Descripción**: Crea un carrito para el usuario autenticado.
+POST /api/users/login
 
-### **5. Agregar Producto al Carrito**
-- **Método**: `POST`
-- **URL**: `http://localhost:3000/api/carts/:cartId/products`
-- **Headers**:
-  - **Authorization**: `Bearer <USER_JWT_TOKEN>`
-- **Body (JSON)**:
-  ```json
-  {
-    "productId": "<PRODUCT_ID>",
-    "quantity": 2
-  }
-  ```
+{
+  "email": "johndoe@example.com",
+  "password": "securePassword123"
+}
 
-### **6. Finalizar Compra**
-- **Método**: `POST`
-- **URL**: `http://localhost:3000/api/carts/:cid/purchase`
-- **Headers**:
-  - **Authorization**: `Bearer <USER_JWT_TOKEN>`
-- **Descripción**: Finaliza la compra de los productos en el carrito.
+Obtener Usuario Actual
 
-### **7. Crear Producto (Solo Administradores)**
-- **Método**: `POST`
-- **URL**: `http://localhost:3000/api/products`
-- **Headers**:
-  - **Authorization**: `Bearer <ADMIN_JWT_TOKEN>`
-- **Body (JSON)**:
-  ```json
-  {
-    "name": "Producto 1",
-    "price": 100,
-    "stock": 50,
-    "description": "Descripción del producto"
-  }
-  ```
+GET /api/users/current
+Authorization: Bearer <USER_JWT_TOKEN>
 
-## Notas Adicionales
+Crear Carrito
 
-- **Seguridad de Cookies**: La cookie que almacena el token JWT es **httpOnly** para protegerla del acceso de JavaScript y **secure** en producción.
-- **Roles de Usuario**: El modelo de usuario tiene un campo `role`, lo que permite futuras implementaciones de roles y permisos.
-- **Hash de Contraseña**: Las contraseñas se guardan en la base de datos de forma segura utilizando el hash de **bcrypt**.
-- **Token JWT**: El token JWT se utiliza para autenticar al usuario y se almacena en la cookie **jwt**.
+POST /api/carts
+Authorization: Bearer <USER_JWT_TOKEN>
 
-## Contribuciones
+Agregar Producto al Carrito
 
-Este proyecto sigue el código de conducta de SupleBoost. Para contribuir, asegúrate de realizar un **fork**, crear una rama específica para tu cambio y enviar un **Pull Request** detallado.
+POST /api/carts/:cartId/products
+Authorization: Bearer <USER_JWT_TOKEN>
 
-## Licencia
+{
+  "productId": "<PRODUCT_ID>",
+  "quantity": 2
+}
+
+Finalizar Compra
+
+POST /api/carts/:cid/purchase
+Authorization: Bearer <USER_JWT_TOKEN>
+
+Crear Producto (Admin)
+
+POST /api/products
+Authorization: Bearer <ADMIN_JWT_TOKEN>
+
+{
+  "name": "Producto 1",
+  "price": 100,
+  "stock": 50,
+  "description": "Descripción del producto"
+}
+
+Mocking y Manejo de Errores
+
+Mocking de Productos
+
+Se implementa una ruta de prueba para simular productos falsos usando @faker-js/faker.
+	•	Ruta: GET /api/mockingproducts
+	•	Descripción: Genera y devuelve 100 productos aleatorios.
+
+{
+  "status": "success",
+  "products": [
+    {
+      "title": "Incredible Cotton Chair",
+      "description": "A fantastic item",
+      "price": 43.55,
+      "stock": 25,
+      "category": "Furniture",
+      "code": "A1B2C3",
+      "status": true
+    },
+    ...
+  ]
+}
+
+Manejo Centralizado de Errores
+
+El proyecto incluye un middleware global para capturar y responder errores.
+	•	Archivo: middlewares/errorHandler.js
+	•	Salida en caso de error:
+
+{
+  "status": "error",
+  "message": "Ocurrió un error inesperado"
+}
+
+	•	En entorno de desarrollo (process.env.NODE_ENV === 'development'), también se incluye el stack del error para debugging.
+
+Notas Adicionales
+	•	Cookies Seguras: JWT almacenado en cookies httpOnly (seguras contra XSS).
+	•	Roles: El modelo User tiene un campo role para futuros permisos.
+	•	Contraseñas Hasheadas: Se usa bcrypt para guardar contraseñas de forma segura.
+	•	JWT: El token se genera en login y se almacena en una cookie llamada jwt.
+
+Contribuciones
+
+Este proyecto sigue el código de conducta de SupleBoost. Para contribuir, asegurate de realizar un fork, crear una rama específica para tu cambio y enviar un Pull Request detallado.
+
+Licencia
 
 Este proyecto es privado y de uso exclusivo.
 
----
 
 
